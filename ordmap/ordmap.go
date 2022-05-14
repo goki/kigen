@@ -2,6 +2,19 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+/*
+package ordmap implements an ordered map that retains the order of items
+added to a slice, while also providing fast key-based map lookup of items,
+using the Go 1.18 generics system.
+
+The implementation is fully visible and the API provides a minimal
+subset of methods, compared to other implementations that are heavier,
+so that additional functionality can be added as needed.
+
+The slice structure holds the Key and Val for items as they are added,
+enabling direct updating of the corresponding map, which holds the
+index into the slice.
+*/
 package ordmap
 
 import "golang.org/x/exp/slices"
@@ -27,10 +40,16 @@ func New[K comparable, V any]() *Map[K, V] {
 	}
 }
 
-// Add adds a new Key, Value
+// Add adds a new value for given key
 func (om *Map[K, V]) Add(key K, val V) {
 	om.Map[key] = len(om.Order)
 	om.Order = append(om.Order, &KeyVal[K, V]{Key: key, Val: val})
+}
+
+// InsertAtIdx inserts value with key at given index
+func (om *Map[K, V]) InsertAtIdx(idx int, key K, val V) {
+	om.Map[key] = idx
+	om.Order = slices.Insert(om.Order, idx, &KeyVal[K, V]{Key: key, Val: val})
 }
 
 // ValByKey returns value based on Key, along with bool reflecting
@@ -61,7 +80,7 @@ func (om *Map[K, V]) KeyByIdx(idx int) K {
 	return om.Order[idx].Key
 }
 
-// Len returns the number of items in the map / list
+// Len returns the number of items in the map
 func (om *Map[K, V]) Len() int {
 	return len(om.Order)
 }
