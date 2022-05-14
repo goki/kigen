@@ -4,6 +4,6 @@ package kigen
 
 const (
 	Version     = "v0.9.0"
-	GitCommit   = "81f4889"          // the commit JUST BEFORE the release
-	VersionDate = "2022-02-14 04:58" // UTC
+	GitCommit   = "9afd80e"          // the commit JUST BEFORE the release
+	VersionDate = "2022-05-14 21:06" // UTC
 )
