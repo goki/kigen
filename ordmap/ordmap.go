@@ -13,7 +13,9 @@ so that additional functionality can be added as needed.
 
 The slice structure holds the Key and Val for items as they are added,
 enabling direct updating of the corresponding map, which holds the
-index into the slice.
+index into the slice.  Adding and access are fast, while deleting
+and inserting are relatively slow, requiring updating of the index map,
+but these are already slow due to the slice updating.
 */
 package ordmap
 
@@ -40,14 +42,31 @@ func New[K comparable, V any]() *Map[K, V] {
 	}
 }
 
-// Add adds a new value for given key
+// Add adds a new value for given key.
+// If key already exists in map, it replaces the item at that existing index,
+// otherwise it is added to the end.
 func (om *Map[K, V]) Add(key K, val V) {
-	om.Map[key] = len(om.Order)
-	om.Order = append(om.Order, &KeyVal[K, V]{Key: key, Val: val})
+	if idx, has := om.Map[key]; has {
+		om.Map[key] = idx
+		om.Order[idx] = &KeyVal[K, V]{Key: key, Val: val}
+	} else {
+		om.Map[key] = len(om.Order)
+		om.Order = append(om.Order, &KeyVal[K, V]{Key: key, Val: val})
+	}
 }
 
 // InsertAtIdx inserts value with key at given index
+// This is relatively slow because it needs to renumber the index map above
+// the inserted value.  It will panic if the key already exists because
+// the behavior is undefined in that situation.
 func (om *Map[K, V]) InsertAtIdx(idx int, key K, val V) {
+	if _, has := om.Map[key]; has {
+		panic("key already exists")
+	}
+	sz := len(om.Order)
+	for o := idx; o < sz; o++ {
+		om.Map[om.Order[o].Key] = o + 1
+	}
 	om.Map[key] = idx
 	om.Order = slices.Insert(om.Order, idx, &KeyVal[K, V]{Key: key, Val: val})
 }
@@ -85,11 +104,22 @@ func (om *Map[K, V]) Len() int {
 	return len(om.Order)
 }
 
-// DeleteIdx deletes item at given index
-func (om *Map[K, V]) DeleteIdx(idx int) {
-	kv := om.Order[idx]
-	delete(om.Map, kv.Key)
-	slices.Delete(om.Order, idx, idx+1)
+// DeleteIdx deletes item(s) within index range [i:j]
+// This is relatively slow because it needs to renumber the index map above
+// the deleted range.
+func (om *Map[K, V]) DeleteIdx(i, j int) {
+	sz := len(om.Order)
+	ndel := j - i
+	if ndel <= 0 {
+		panic("index range is <= 0")
+	}
+	for o := j; o < sz; o++ {
+		om.Map[om.Order[o].Key] = o - ndel
+	}
+	for o := i; o < j; o++ {
+		delete(om.Map, om.Order[o].Key)
+	}
+	om.Order = slices.Delete(om.Order, i, j)
 }
 
 // DeleteKey deletes item by given key, returns true if found
@@ -98,6 +128,6 @@ func (om *Map[K, V]) DeleteKey(key K) bool {
 	if !ok {
 		return false
 	}
-	slices.Delete(om.Order, idx, idx+1)
+	om.DeleteIdx(idx, idx+1)
 	return true
 }
