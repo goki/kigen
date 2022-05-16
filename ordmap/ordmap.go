@@ -42,10 +42,18 @@ func New[K comparable, V any]() *Map[K, V] {
 	}
 }
 
+// Init initializes the map if not done yet
+func (om *Map[K, V]) Init() {
+	if om.Map == nil {
+		om.Map = make(map[K]int)
+	}
+}
+
 // Add adds a new value for given key.
 // If key already exists in map, it replaces the item at that existing index,
 // otherwise it is added to the end.
 func (om *Map[K, V]) Add(key K, val V) {
+	om.Init()
 	if idx, has := om.Map[key]; has {
 		om.Map[key] = idx
 		om.Order[idx] = &KeyVal[K, V]{Key: key, Val: val}
@@ -63,6 +71,7 @@ func (om *Map[K, V]) InsertAtIdx(idx int, key K, val V) {
 	if _, has := om.Map[key]; has {
 		panic("key already exists")
 	}
+	om.Init()
 	sz := len(om.Order)
 	for o := idx; o < sz; o++ {
 		om.Map[om.Order[o].Key] = o + 1
