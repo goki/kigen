@@ -3,7 +3,7 @@
 package kigen
 
 const (
-	Version     = "v0.9.0"
-	GitCommit   = "9afd80e"          // the commit JUST BEFORE the release
-	VersionDate = "2022-05-14 21:06" // UTC
+	Version     = "v0.9.1"
+	GitCommit   = "4989462"          // the commit JUST BEFORE the release
+	VersionDate = "2022-05-16 19:19" // UTC
 )
