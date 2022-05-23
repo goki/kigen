@@ -19,7 +19,11 @@ but these are already slow due to the slice updating.
 */
 package ordmap
 
-import "golang.org/x/exp/slices"
+import (
+	"fmt"
+
+	"golang.org/x/exp/slices"
+)
 
 // KeyVal represents the Key and Value
 type KeyVal[K comparable, V any] struct {
@@ -49,6 +53,12 @@ func (om *Map[K, V]) Init() {
 	}
 }
 
+// Reset resets the map, removing any existing elements
+func (om *Map[K, V]) Reset() {
+	om.Map = nil
+	om.Order = nil
+}
+
 // Add adds a new value for given key.
 // If key already exists in map, it replaces the item at that existing index,
 // otherwise it is added to the end.
@@ -61,6 +71,16 @@ func (om *Map[K, V]) Add(key K, val V) {
 		om.Map[key] = len(om.Order)
 		om.Order = append(om.Order, &KeyVal[K, V]{Key: key, Val: val})
 	}
+}
+
+// ReplaceIdx replaces value at given index with new item with given key
+func (om *Map[K, V]) ReplaceIdx(idx int, key K, val V) {
+	old := om.Order[idx]
+	if key != old.Key {
+		delete(om.Map, old.Key)
+		om.Map[key] = idx
+	}
+	om.Order[idx] = &KeyVal[K, V]{Key: key, Val: val}
 }
 
 // InsertAtIdx inserts value with key at given index
@@ -89,6 +109,14 @@ func (om *Map[K, V]) ValByKey(key K) (V, bool) {
 	}
 	var zv V
 	return zv, false
+}
+
+// IdxIsValid returns error if index is invalid
+func (om *Map[K, V]) IdxIsValid(idx int) error {
+	if idx >= len(om.Order) || idx < 0 {
+		return fmt.Errorf("ordmap.Map: IdxIsValid -- index %d is out of range of length: %d", idx, len(om.Order))
+	}
+	return nil
 }
 
 // IdxByKey returns index of given Key, along with bool reflecting
