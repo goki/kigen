@@ -168,3 +168,21 @@ func (om *Map[K, V]) DeleteKey(key K) bool {
 	om.DeleteIdx(idx, idx+1)
 	return true
 }
+
+// Keys returns a slice of keys in order
+func (om *Map[K, V]) Keys() []K {
+	kl := make([]K, om.Len())
+	for i, kv := range om.Order {
+		kl[i] = kv.Key
+	}
+	return kl
+}
+
+// Vals returns a slice of vals in order
+func (om *Map[K, V]) Vals() []V {
+	vl := make([]V, om.Len())
+	for i, kv := range om.Order {
+		vl[i] = kv.Val
+	}
+	return vl
+}
