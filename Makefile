@@ -56,7 +56,7 @@ gopath-update:
 mod-update: export GO111MODULE = on
 
 # NOTE: MUST update version number here prior to running 'make release'
-VERS=v0.9.2
+VERS=v1.0.0
 PACKAGE=kigen
 GIT_COMMIT=`git rev-parse --short HEAD`
 VERS_DATE=`date -u +%Y-%m-%d\ %H:%M`
