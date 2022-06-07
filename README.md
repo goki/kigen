@@ -11,3 +11,8 @@ This collection of Generics libraries takes advantage of the new generic type pa
 
 Implements an ordered map that retains the order of items added to a slice, while also providing fast key-based map lookup of items.
 
+# dedupe: deduplicate (uniquify) any slice with comparable elements
+
+Implements a de-duplication function for any comparable slice type, efficiently using a map to check for duplicates.  The original order of items is preserved.
+
+
