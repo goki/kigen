@@ -2,9 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-/* package dedupe implements a de-duplication function for
+/*
+	package dedupe implements a de-duplication function for
+
 any comparable slice type, efficiently using a map to
-check for duplicates.  The original order of items is preserved. */
+check for duplicates.  The original order of items is preserved.
+*/
 package dedupe
 
 func DeDupe[T comparable](slc []T) []T {

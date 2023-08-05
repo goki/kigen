@@ -35,8 +35,12 @@ type KeyVal[K comparable, V any] struct {
 // and the fast key lookup of a map.  A map stores an index
 // into a slice that has the value and key associated with the value.
 type Map[K comparable, V any] struct {
+
+	// ordered list of values and associated keys -- in order added
 	Order []*KeyVal[K, V] `desc:"ordered list of values and associated keys -- in order added"`
-	Map   map[K]int       `desc:"key to index mapping"`
+
+	// key to index mapping
+	Map map[K]int `desc:"key to index mapping"`
 }
 
 // New returns a new ordered map
